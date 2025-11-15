@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}{{ post.title }} • Nexus Arena{% endblock %}
+{% block content %}
+<article class="post">
+    <header class="post-hero" style="background-image: url('{{ post.hero_image() }}');">
+        <div class="overlay">
+            <p class="post-meta">{{ post.category or 'Esports' }} · {{ post.date_posted.strftime('%B %d, %Y') }}</p>
+            <h1>{{ post.title }}</h1>
+            <p class="post-author">By {{ post.author.username }}</p>
+        </div>
+    </header>
+    <div class="post-body">
+        {% for paragraph in post.content.split('\n\n') %}
+            <p>{{ paragraph }}</p>
+        {% endfor %}
+        <div class="post-actions">
+            {% if current_user.is_authenticated and current_user.id == post.user_id %}
+                <a class="action-button" href="{{ url_for('edit_post', post_id=post.id) }}">
+                    <span class="icon">✏️</span>
+                    <div>
+                        <strong>Edit recap</strong>
+                        <small>Tweak copy, links, or media</small>
+                    </div>
+                </a>
+                <form action="{{ url_for('delete_post', post_id=post.id) }}" method="post" onsubmit="return confirm('Delete this post?')">
+                    <button type="submit" class="action-button danger">
+                        <span class="icon">🗑️</span>
+                        <div>
+                            <strong>Delete post</strong>
+                            <small>Removes it for everyone</small>
+                        </div>
+                    </button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+</article>
+
+{% if current_user.is_authenticated %}
+<section id="feedback" class="feedback">
+    <h2>Was this breakdown helpful?</h2>
+    <div class="feedback-actions">
+        <form method="post" action="{{ url_for('post_feedback', post_id=post.id) }}">
+            <input type="hidden" name="action" value="helpful">
+            <button type="submit" class="feedback-btn {{ 'active' if user_vote and user_vote.helpful else '' }}">
+                <span class="icon">⭐</span>
+                <span class="label">Helpful</span>
+                <span class="count">{{ helpful_votes }}</span>
+            </button>
+        </form>
+        <form method="post" action="{{ url_for('post_feedback', post_id=post.id) }}">
+            <input type="hidden" name="action" value="not_helpful">
+            <button type="submit" class="feedback-btn danger {{ 'active' if user_vote and not user_vote.helpful else '' }}">
+                <span class="icon">👎</span>
+                <span class="label">Not really</span>
+                <span class="count">{{ not_helpful_votes }}</span>
+            </button>
+        </form>
+    </div>
+</section>
+{% else %}
+<section class="feedback disabled" id="feedback">
+    <h2>Was this breakdown helpful?</h2>
+    <p><a href="{{ url_for('login', next=request.path) }}">Log in</a> to leave star or thumbs-down feedback.</p>
+</section>
+{% endif %}
+
+<section id="comments" class="comments">
+    <h2>Play-by-play</h2>
+    {% if comments %}
+        <ul>
+            {% for comment in comments %}
+                <li>
+                    <p class="comment-meta">{{ comment.author.username }} · {{ comment.created_at.strftime('%b %d, %Y %H:%M') }}</p>
+                    <p>{{ comment.body }}</p>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No commentary yet.</p>
+    {% endif %}
+
+    {% if current_user.is_authenticated %}
+    <form method="post" class="comment-form">
+        <label for="body">Add your take</label>
+        <textarea id="body" name="body" rows="4" required></textarea>
+        <button type="submit">Submit</button>
+    </form>
+    {% else %}
+        <p><a href="{{ url_for('login', next=request.path) }}">Log in</a> to join the discussion.</p>
+    {% endif %}
+</section>
+{% endblock %}
+

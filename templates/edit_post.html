@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Edit Post • Nexus Arena{% endblock %}
+{% block content %}
+<section class="form-shell">
+    <h1>Edit recap</h1>
+    <form method="post">
+        <label>Title
+            <input type="text" name="title" value="{{ post.title }}" required>
+        </label>
+        <label>Summary
+            <input type="text" name="summary" maxlength="240" value="{{ post.summary }}" required>
+        </label>
+        <label>Category
+            <input type="text" name="category" value="{{ post.category }}">
+        </label>
+        <label>Hero image URL
+            <input type="url" name="image_url" value="{{ post.image_url }}">
+        </label>
+        <label>Content
+            <textarea name="content" rows="8" required>{{ post.content }}</textarea>
+        </label>
+        <button type="submit">Save</button>
+    </form>
+</section>
+{% endblock %}
+

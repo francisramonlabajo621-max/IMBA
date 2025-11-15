@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}{{ user_profile.username }} • Nexus Arena{% endblock %}
+{% block content %}
+<section class="profile-hero">
+    <div class="avatar">
+        {{ user_profile.username[0]|upper }}
+    </div>
+    <div>
+        <p class="eyebrow">{{ 'You' if current_user.is_authenticated and current_user.id == user_profile.id else 'Contributor' }}</p>
+        <h1>{{ user_profile.username }}</h1>
+        <p>Strategy analyst and esports storyteller.</p>
+        {% if current_user.is_authenticated and current_user.id == user_profile.id %}
+            <a class="pill" href="{{ url_for('add_post') }}">Write new post</a>
+        {% endif %}
+    </div>
+    <div class="profile-stats">
+        <div>
+            <span class="stat-value">{{ stats.posts }}</span>
+            <span class="stat-label">Posts</span>
+        </div>
+        <div>
+            <span class="stat-value">{{ stats.comments }}</span>
+            <span class="stat-label">Comments</span>
+        </div>
+        <div>
+            <span class="stat-value">{{ stats.helpful }}</span>
+            <span class="stat-label">Stars</span>
+        </div>
+        <div>
+            <span class="stat-value">{{ stats.not_helpful }}</span>
+            <span class="stat-label">Thumbs down</span>
+        </div>
+    </div>
+</section>
+
+<section class="profile-grid">
+    <div>
+        <h2>Published posts</h2>
+        {% if posts %}
+            <div class="grid">
+                {% for post in posts %}
+                    <article class="card compact">
+                        <a href="{{ url_for('post_detail', post_id=post.id) }}">
+                            <img src="{{ post.hero_image() }}" alt="{{ post.title }}">
+                        </a>
+                        <div class="card-body">
+                            <p class="card-meta">{{ post.category or 'Esports' }} · {{ post.date_posted.strftime('%b %d, %Y') }}</p>
+                            <h3><a href="{{ url_for('post_detail', post_id=post.id) }}">{{ post.title }}</a></h3>
+                            <p>{{ post.summary }}</p>
+                            <div class="card-footer">
+                                <span>⭐ {{ post.helpful_votes() }}</span>
+                                <span>👎 {{ post.not_helpful_votes() }}</span>
+                            </div>
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>No posts yet.</p>
+        {% endif %}
+    </div>
+    <aside>
+        <h2>Recent comments</h2>
+        {% if comments %}
+            <ul class="comment-list">
+                {% for comment in comments %}
+                    <li>
+                        <p>{{ comment.body }}</p>
+                        <small>On <a href="{{ url_for('post_detail', post_id=comment.post_id, _anchor='comments') }}">{{ comment.post.title }}</a> · {{ comment.created_at.strftime('%b %d, %Y') }}</small>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No comments yet.</p>
+        {% endif %}
+    </aside>
+</section>
+{% endblock %}
+

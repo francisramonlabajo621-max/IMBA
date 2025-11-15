@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% block title %}Nexus Arena • Esports Blog{% endblock %}
+{% block content %}
+<section class="hero">
+    <div>
+        <p class="eyebrow">Meta Watch</p>
+        <h1>Patch notes, strat talk, and tournament stories.</h1>
+        <p>Curated reports from scrims, analysts, and desk talent so your squad never misses the shifting meta.</p>
+        <div class="hero-stats">
+            <div>
+                <span class="stat-value">{{ stats.posts }}</span>
+                <span class="stat-label">Posts</span>
+            </div>
+            <div>
+                <span class="stat-value">{{ stats.comments }}</span>
+                <span class="stat-label">Comments</span>
+            </div>
+            <div>
+                <span class="stat-value">{{ stats.members }}</span>
+                <span class="stat-label">Members</span>
+            </div>
+        </div>
+    </div>
+    <form class="search-form" method="get" action="{{ url_for('index') }}">
+        <label for="search">Search the archive</label>
+        <input id="search" type="text" name="q" placeholder="Search for agents, teams, or tactics" value="{{ query }}">
+        <button type="submit">Scan</button>
+    </form>
+</section>
+
+<section class="quicklinks">
+    <article>
+        <p class="eyebrow">Trending</p>
+        <h3>Watch match breakdowns</h3>
+        <a href="{{ url_for('index') }}">View archive →</a>
+    </article>
+    <article>
+        <p class="eyebrow">Create</p>
+        <h3>Publish your recap</h3>
+        {% if current_user.is_authenticated %}
+            <a href="{{ url_for('add_post') }}">New post →</a>
+        {% else %}
+            <a href="{{ url_for('login') }}">Log in →</a>
+        {% endif %}
+    </article>
+    <article>
+        <p class="eyebrow">Categories</p>
+        <h3>Browse by genre</h3>
+        <a href="#categories">Jump to filters →</a>
+    </article>
+    <article>
+        <p class="eyebrow">Community</p>
+        <h3>Join the roster</h3>
+        {% if current_user.is_authenticated %}
+            <span class="pill">You’re in!</span>
+        {% else %}
+            <a href="{{ url_for('register') }}">Sign up →</a>
+        {% endif %}
+    </article>
+</section>
+
+{% if categories %}
+<section class="categories" id="categories">
+    <span>Filter:</span>
+    <a href="{{ url_for('index') }}" class="{{ '' if category else 'active' }}">All</a>
+    {% for cat in categories %}
+        <a href="{{ url_for('index', category=cat) }}" class="{{ 'active' if cat == category else '' }}">{{ cat }}</a>
+    {% endfor %}
+</section>
+{% endif %}
+
+{% if featured_post %}
+<section class="featured">
+    <article class="feature-card">
+        <img src="{{ featured_post.hero_image() }}" alt="{{ featured_post.title }}">
+        <div>
+            <p class="card-meta">{{ featured_post.category or 'Esports' }} · {{ featured_post.date_posted.strftime('%b %d, %Y') }}</p>
+            <h2>{{ featured_post.title }}</h2>
+            <p>{{ featured_post.summary }}</p>
+            <div class="feature-footer">
+                <span>by {{ featured_post.author.username }}</span>
+                <a href="{{ url_for('post_detail', post_id=featured_post.id) }}">Dive in</a>
+            </div>
+        </div>
+    </article>
+</section>
+{% endif %}
+
+<section class="grid-layout">
+    <div class="grid">
+        {% if feed_posts %}
+            {% for post in feed_posts %}
+                <article class="card">
+                    <a href="{{ url_for('post_detail', post_id=post.id) }}">
+                        <img src="{{ post.hero_image() }}" alt="{{ post.title }}">
+                    </a>
+                    <div class="card-body">
+                        <p class="card-meta">{{ post.category or 'Esports' }} · {{ post.date_posted.strftime('%b %d, %Y') }}</p>
+                        <h2><a href="{{ url_for('post_detail', post_id=post.id) }}">{{ post.title }}</a></h2>
+                        <p>{{ post.summary }}</p>
+                        <div class="card-footer">
+                            <span>by {{ post.author.username }}</span>
+                            <a href="{{ url_for('post_detail', post_id=post.id) }}">Read</a>
+                        </div>
+                    </div>
+                </article>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                <h3>No posts match your search.</h3>
+                <p>Clear filters or create the first breakdown.</p>
+                {% if current_user.is_authenticated %}
+                    <a class="cta" href="{{ url_for('add_post') }}">Publish one</a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+    <aside class="pulse">
+        <h3>Community Pulse</h3>
+        <ul>
+            <li><span>🔥</span> Late-game macro clinics from LCK</li>
+            <li><span>🎯</span> Aim routines for CS2 in 15 minutes</li>
+            <li><span>🛡️</span> Controller synergy on Valorant Fracture</li>
+            <li><span>⚙️</span> Meta shifts after latest Overwatch patch</li>
+        </ul>
+        {% if current_user.is_authenticated %}
+            <a class="cta" href="{{ url_for('add_post') }}">Share a take</a>
+        {% else %}
+            <a class="cta" href="{{ url_for('register') }}">Join the roster</a>
+        {% endif %}
+    </aside>
+</section>
+{% endblock %}
+

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}New Post • Nexus Arena{% endblock %}
+{% block content %}
+<section class="form-shell">
+    <h1>Post a new breakdown</h1>
+    <form method="post">
+        <label>Title
+            <input type="text" name="title" required>
+        </label>
+        <label>Summary
+            <input type="text" name="summary" maxlength="240" required>
+        </label>
+        <label>Category
+            <input type="text" name="category" placeholder="MOBA, FPS, Tactics">
+        </label>
+        <label>Hero image URL
+            <input type="url" name="image_url" placeholder="https://">
+        </label>
+        <label>Content
+            <textarea name="content" rows="8" required></textarea>
+        </label>
+        <button type="submit">Publish</button>
+    </form>
+</section>
+{% endblock %}
+
